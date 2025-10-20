@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Club Mahab – Layout Prototype (v3)</title>
+<style>
+  *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  body{margin:0;background:#fafafa;color:#222}
+  header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #eee;background:#fff;position:sticky;top:0;z-index:10}
+  header h1{font-size:18px;margin:0}
+  header .right{margin-left:auto;text-align:right;line-height:1.2}
+  header .meta{font-size:12px;color:#666}
+  header .flag{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#fff2e8;border:1px solid #ffd591;font-size:12px}
+
+  /* 40% calendar (left) + 60% right side */
+  main{
+    display:grid;
+    grid-template-columns: 40% 60%;
+    gap:16px;
+    max-width:1400px;
+    margin:16px auto;
+    padding:0 16px;
+  }
+
+  /* LEFT: calendar */
+  .cal{
+    background:#fff;border:1px solid #eee;border-radius:12px;padding:12px;
+    max-height:82vh; /* taller so it matches right before scroll */
+    overflow-y:auto;
+  }
+  .month{padding:8px 0;margin-bottom:10px}
+  .mline{border-top:1px dashed #e5e5e5;margin:6px 0}
+  .month h3{margin:0 0 8px;font-size:15px}
+  .grid20{display:grid;grid-template-columns:repeat(20,36px);gap:6px}
+  .date{
+    width:36px;height:50px;padding-top:2px;border:1px solid #eee;border-radius:8px;background:#fff;
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;cursor:pointer
+  }
+  .date.weekend{background:#f7f7ff;border-color:#e5e5ff}
+  .date.special{background:#fff7e6;border-color:#ffd591}
+  .date.selected{outline:2px solid #1677ff}
+  .date.in-range{background:#e6f4ff;border-color:#91caff}
+  .dnum{font-size:13px;line-height:14px}
+  .dow{font-size:10px;color:#888;line-height:12px;margin-top:-2px}
+  .avail{font-size:10px;color:#666;line-height:12px}
+
+  /* RIGHT: big form (60%) */
+  .panel{background:#fff;border:1px solid #eee;border-radius:12px;padding:14px}
+  .boldxl{font-weight:800;font-size:20px}
+  .line{margin:10px 0}
+  .line.double{margin:20px 0}
+  label{font-size:14px;margin-right:12px}
+  select,input[type="number"],input[type="text"]{
+    height:34px;padding:4px 8px;border:1px solid #e5e5e5;border-radius:8px;background:#fff
+  }
+  .inline{display:flex;flex-wrap:wrap;gap:14px 16px;align-items:center}
+  .pillrow{display:flex;flex-wrap:wrap;gap:12px 16px}
+  .pill{
+    display:inline-flex;align-items:center;justify-content:center;min-width:150px;
+    padding:8px 12px;border-radius:999px;border:1px solid #cfe5ff;background:#eaf4ff;font-size:13px
+  }
+  .pill.green{background:#edfbee;border-color:#b7eb8f}
+  .pill.orange{background:#fff7e6;border-color:#ffd591}
+  .pill.clickable{cursor:pointer}
+  .roomlist{display:flex;flex-wrap:wrap;gap:10px 14px;margin-top:10px}
+  .roomchip{padding:6px 10px;border:1px solid #eee;border-radius:999px;background:#fff;display:flex;gap:8px;align-items:center}
+  .roomchip.selected{background:#e6f4ff;border-color:#91caff}
+  .section-title{font-weight:700;margin:16px 0 8px}
+  .grid4{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:10px 10px}
+  .grid2{display:grid;grid-template-columns:repeat(2,minmax(160px,1fr));gap:10px 14px}
+  .muted{color:#666}
+  .summary{background:#fafcff;border:1px dashed #b7d6ff;border-radius:12px;padding:12px}
+  .confirm{display:flex;align-items:center;gap:8px;margin-top:10px}
+  .age-wrap{display:flex;align-items:center;gap:6px}
+  .age{width:70px} /* narrower age box */
+  .rules{margin-top:10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>The Club Mahabaleshwar</h1>
+  <div class="right">
+    <div class="meta">Member: <span id="mName">—</span> &nbsp;|&nbsp; Membership #: <span id="mNo">—</span></div>
+    <div class="meta">Open bookings: <span id="openBookings">0</span><span id="openBookingsNote" class="flag" style="display:none">Max 2 bookings allowed</span></div>
+  </div>
+</header>
+
+<main>
+  <!-- LEFT: 20-wide calendar with availability numbers + weekend/special colors -->
+  <section class="cal" id="cal"></section>
+
+  <!-- RIGHT: form-only layout -->
+  <section class="panel" id="right">
+    <div class="line boldxl" id="ciCo">Check-in: — | Check-out: —</div>
+
+    <div class="line double inline">
+      <label>Rooms required:</label><input id="roomsRequired" type="number" min="0" value="0" style="width:90px">
+      <label>Occupants:</label><input id="occupantsTotal" type="number" min="0" value="0" style="width:90px">
+    </div>
+
+    <div class="line">
+      <div class="pillrow" id="blocksTop"></div>
+    </div>
+    <div class="line">
+      <div class="pillrow" id="blocksTop2"></div>
+    </div>
+
+    <div class="line double inline">
+      <label><input type="checkbox" id="f_wc"> Wheelchair</label>
+      <label><input type="checkbox" id="f_pet"> Pet-friendly</label>
+      <label><input type="checkbox" id="f_ac"> AC</label>
+      <label><input type="checkbox" id="f_grp"> Group</label>
+      <label>Occupancy:</label>
+      <select id="occSel">
+        <option>1</option><option>2</option><option>3</option><option>4</option>
+      </select>
+    </div>
+
+    <div class="line">
+      <div class="section-title">Rooms in selected block</div>
+      <div class="roomlist" id="roomsInBlock"></div>
+    </div>
+
+    <div class="line double">
+      <div class="section-title">Member & Temp Members
+        <label style="margin-left:12px;"><input type="checkbox" id="msgConsent1"> Tick to confirm</label>
+      </div>
+
+      <div class="grid4">
+        <input id="memName" placeholder="Member name">
+        <span class="age-wrap">
+          <input class="age" type="number" placeholder="Age"><input type="checkbox" title="apply to all"/>
+        </span>
+        <input placeholder="Spouse name">
+        <span class="age-wrap">
+          <input class="age" type="number" placeholder="Age"><input type="checkbox" title="apply to all"/>
+        </span>
+      </div>
+
+      <div class="grid4" style="margin-top:10px">
+        <input placeholder="Child 1 name">
+        <span class="age-wrap">
+          <input class="age" type="number" placeholder="Age"><input type="checkbox" title="apply to all"/>
+        </span>
+        <input placeholder="Child 2 name">
+        <span class="age-wrap">
+          <input class="age" type="number" placeholder="Age"><input type="checkbox" title="apply to all"/>
+        </span>
+      </div>
+
+      <div class="grid4" style="margin-top:10px">
+        <input placeholder="Parent 1 name">
+        <span class="age-wrap">
+          <input class="age" type="number" placeholder="Age"><input type="checkbox" title="apply to all"/>
+        </span>
+        <input placeholder="Parent 2 name">
+        <span class="age-wrap">
+          <input class="age" type="number" placeholder="Age"><input type="checkbox" title="apply to all"/>
+        </span>
+      </div>
+
+      <div class="grid4" style="margin-top:10px">
+        <input placeholder="Temp member 1 name">
+        <span class="age-wrap">
+          <input class="age" type="number" placeholder="Age"><input type="checkbox" title="apply to all"/>
+        </span>
+        <input placeholder="Temp member 2 name">
+        <span class="age-wrap">
+          <input class="age" type="number" placeholder="Age"><input type="checkbox" title="apply to all"/>
+        </span>
+      </div>
+
+      <div class="line inline" style="margin-top:10px">
+        <label><input type="checkbox" id="msgConsent2"> Tick to confirm</label>
+        <button type="button" id="addTemp" style="height:34px">+ Add more Temp members</button>
+      </div>
+    </div>
+
+    <div class="line double grid2">
+      <div><label>Total Veg</label> <input id="veg" type="number" min="0" value="0" style="width:120px"></div>
+      <div><label>Total Non-veg</label> <input id="nonveg" type="number" min="0" value="0" style="width:140px"></div>
+    </div>
+
+    <div class="line double summary" id="summary">
+      <div class="section-title">Summary</div>
+      <div id="s1" class="muted">Check-in: (—) | Check-out: (—)</div>
+      <div id="s2" class="muted">Rooms required: (0)  Occupants: (0)</div>
+      <div id="s3" class="muted">Veg (0)  Non-veg (0)</div>
+      <div id="s4" class="muted">Room-nights: (0)  Amount/night: ₹(0)  Total amount payable: ₹(0)</div>
+      <div class="rules"><a id="rulesLink" href="#" target="_blank">Read the Rules & Policies</a></div>
+      <label class="confirm"><input type="checkbox" id="confirm"> Confirm above</label>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ---------------- HEADER MOCK ---------------- */
+document.getElementById('mName').textContent = '—';     // filled after OTP in real app
+document.getElementById('mNo').textContent   = '—';
+const openBookingsCount = 0;                            // set to 2 to see the warning
+document.getElementById('openBookings').textContent = openBookingsCount;
+if (openBookingsCount >= 2) document.getElementById('openBookingsNote').style.display='inline-block';
+
+/* ---------------- CSV LOADING (counts come from your CSV) ---------------- */
+async function tryFetchText(paths){
+  for (const p of paths){
+    try{
+      const r = await fetch(p + '?v=' + Date.now());
+      if (r.ok) return await r.text();
+    }catch(_){}
+  }
+  return null;
+}
+function splitSmart(line){ const c=line.split(','), t=line.split('\t'); return (t.length>c.length?t:c).map(s=>s.trim()); }
+function parseCSV(text){
+  const lines = text.split(/\r?\n/).filter(x=>x.trim().length);
+  if (!lines.length) return [];
+  const header = splitSmart(lines[0]);
+  return lines.slice(1).map(line=>{
+    const cells = splitSmart(line);
+    const row = {}; header.forEach((h,i)=> row[h]= (cells[i]??'').trim()); return row;
+  });
+}
+function pick(obj, keys){ for (const k of keys){ if (obj[k]!==undefined) return obj[k]; } }
+
+/* Expected headers:
+   Block, Room No, Floor, Min Person, Max Person, Airconditioning, Wheel Chair Access, Pets Permitted, Group Booking Permitted
+*/
+let INVENTORY = [];
+let TOTAL_ROOMS = 0;
+
+async function loadInventory(){
+  const csvText = await tryFetchText([
+    './data/uploads/rooms.csv',
+    './data/uploads/Room%20Classification%20List.csv',
+    './data/uploads/Room Classification List.csv'
+  ]);
+  if (!csvText){ return; }
+  const rows = parseCSV(csvText);
+  INVENTORY = rows.map(r=>{
+    return {
+      block: (pick(r,['Block','BLOCK'])||'').trim(),
+      num:   String(pick(r,['Room No','Room','RoomNo'])||'').trim(),
+      min:   parseInt(pick(r,['Min Person','Min'])||'1',10)||1,
+      max:   parseInt(pick(r,['Max Person','Max'])||'4',10)||4
+    };
+  }).filter(r=>r.block && r.num);
+  TOTAL_ROOMS = INVENTORY.length;
+}
+
+/* ---------------- CALENDAR (20 columns) ---------------- */
+const calEl = document.getElementById('cal');
+let checkIn = null, checkOut = null;
+
+// Example special-date store (keep empty; real app will fill)
+const specialISO = new Set();
+
+function renderCalendar20(){
+  calEl.innerHTML = '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const monthsToShow = 8; // scrollable
+  let cursor = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  for(let m=0; m<monthsToShow; m++){
+    const ms = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+    const me = new Date(cursor.getFullYear(), cursor.getMonth()+1, 0);
+
+    const wrap = document.createElement('div'); wrap.className='month';
+    const h = document.createElement('h3'); h.textContent = ms.toLocaleString(undefined, {month:'long',year:'numeric'}); wrap.appendChild(h);
+    // top divider
+    wrap.appendChild(document.createElement('div')).className='mline';
+
+    const grid = document.createElement('div'); grid.className='grid20'; wrap.appendChild(grid);
+
+    for(let d=new Date(ms); d<=me; d.setDate(d.getDate()+1)){
+      const dCopy = new Date(d);
+      const iso = dCopy.toISOString().slice(0,10);
+
+      const cell = document.createElement('div'); cell.className='date';
+      const isWeekend = [0,6].includes(dCopy.getDay());
+      if(isWeekend) cell.classList.add('weekend');
+      if (specialISO.has(iso)) cell.classList.add('special');
+
+      // inclusive selection paint
+      if (checkIn && !checkOut && sameDay(dCopy, checkIn)) cell.classList.add('selected');
+      if (checkIn && checkOut && dCopy>=checkIn && dCopy<=checkOut) cell.classList.add('in-range');
+
+      const dn = document.createElement('div'); dn.className='dnum'; dn.textContent = dCopy.getDate();
+      const dw = document.createElement('div'); dw.className='dow';  dw.textContent  = ['Su','Mo','Tu','We','Th','Fr','Sa'][dCopy.getDay()];
+      const av = document.createElement('div'); av.className='avail'; av.textContent = TOTAL_ROOMS || '—';
+      cell.appendChild(dn); cell.appendChild(dw); cell.appendChild(av);
+
+      cell.addEventListener('click', ()=>{
+        if (!checkIn || (checkIn && checkOut)){ checkIn = startOfDay(dCopy); checkOut = null; }
+        else if (dCopy > checkIn){ checkOut = startOfDay(dCopy); }
+        else { checkIn = startOfDay(dCopy); checkOut = null; }
+        renderCalendar20(); updateRight();
+      });
+
+      grid.appendChild(cell);
+    }
+
+    // middle divider (between cells and bottom)
+    wrap.appendChild(document.createElement('div')).className='mline';
+    // bottom divider
+    wrap.appendChild(document.createElement('div')).className='mline';
+
+    calEl.appendChild(wrap);
+    cursor = new Date(cursor.getFullYear(), cursor.getMonth()+1, 1);
+  }
+}
+function sameDay(a,b){ return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function startOfDay(d){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
+
+/* ---------------- BLOCKS (from CSV) ---------------- */
+const BLOCKS = ["A","B","D","New C","New E","Old C","Old E"]; // display order
+const blocksTop  = document.getElementById('blocksTop');
+const blocksTop2 = document.getElementById('blocksTop2');
+const roomsBox   = document.getElementById('roomsInBlock');
+let blockCounts = {};     // computed from CSV
+let openBlock = "A";
+
+function computeBlockCounts(){
+  const counts = {}; BLOCKS.forEach(b=>counts[b]=0);
+  INVENTORY.forEach(r=>{ if (counts[r.block]===undefined) counts[r.block]=0; counts[r.block]++; });
+  blockCounts = counts;
+}
+
+function pillFor(blk, status='green'){ // status: green|orange
+  const p = document.createElement('div');
+  p.className = 'pill clickable ' + (status==='orange'?'orange':'green');
+  const count = blockCounts[blk] ?? 0;
+  p.textContent = `${blk}: ${count} room(s)`;
+  p.addEventListener('click', ()=>{ openBlock = blk; renderRoomsInOpenBlock(); });
+  return p;
+}
+function renderBlocks(){
+  blocksTop.innerHTML = '';
+  blocksTop2.innerHTML = '';
+  ["A","B","D","New C"].forEach(b=> blocksTop.appendChild(pillFor(b,'green')));
+  ["New E","Old C","Old E"].forEach(b=> blocksTop2.appendChild(pillFor(b,'green')));
+}
+
+function roomsInBlock(blk){
+  // Build simple list from inventory
+  const list = INVENTORY.filter(r=>r.block===blk)
+    .map(r=>({room:`${r.block}-${r.num}`, min:r.min||1, max:r.max||4}))
+    .sort((a,b)=>a.room.localeCompare(b.room));
+  return list;
+}
+function renderRoomsInOpenBlock(){
+  roomsBox.innerHTML = '';
+  const rooms = roomsInBlock(openBlock);
+  if (!rooms.length){ roomsBox.textContent = 'No rooms in this block (per CSV).'; return; }
+  rooms.forEach(r=>{
+    const chip = document.createElement('div'); chip.className='roomchip';
+    chip.appendChild(document.createTextNode(r.room));
+    const sel = document.createElement('select');
+    const zero = document.createElement('option'); zero.value=0; zero.textContent='0'; sel.appendChild(zero);
+    for(let n=r.min;n<=r.max;n++){ const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); }
+    chip.appendChild(sel);
+    chip.addEventListener('click', (e)=>{ if(e.target===sel) return; chip.classList.toggle('selected'); });
+    roomsBox.appendChild(chip);
+  });
+}
+
+/* ---------------- SUMMARY MIRROR ---------------- */
+const ciCo = document.getElementById('ciCo');
+function updateRight(){
+  const ci = checkIn ? checkIn.toISOString().slice(0,10) : '—';
+  const co = checkOut ? checkOut.toISOString().slice(0,10) : '—';
+  ciCo.textContent = `Check-in: ${ci} | Check-out: ${co}`;
+
+  document.getElementById('s1').textContent = `Check-in: (${ci}) | Check-out: (${co})`;
+  const rr = parseInt(document.getElementById('roomsRequired').value||'0',10);
+  const occ= parseInt(document.getElementById('occupantsTotal').value||'0',10);
+  document.getElementById('s2').textContent = `Rooms required: (${rr})  Occupants: (${occ})`;
+
+  const veg = parseInt(document.getElementById('veg').value||'0',10);
+  const nv  = parseInt(document.getElementById('nonveg').value||'0',10);
+  document.getElementById('s3').textContent = `Veg (${veg})  Non-veg (${nv})`;
+
+  let nights = 0; if (checkIn && checkOut && checkOut > checkIn) nights = Math.round((checkOut - checkIn)/(1000*60*60*24));
+  const perNight = 0, total = perNight * nights * rr;
+  document.getElementById('s4').textContent = `Room-nights: (${nights * rr})  Amount/night: ₹(${perNight})  Total amount payable: ₹(${total})`;
+
+  // mirror member name to header
+  const name = (document.getElementById('memName').value||'').trim();
+  if (name) document.getElementById('mName').textContent = name;
+}
+
+/* ---------------- TEMP MEMBERS ADD (layout only) --------------- */
+document.getElementById('addTemp').addEventListener('click', ()=>{
+  const container = document.querySelector('.panel');
+  const block = document.createElement('div');
+  block.className = 'grid4';
+  block.style.marginTop = '10px';
+  block.innerHTML = `
+    <input placeholder="Temp member name">
+    <span class="age-wrap">
+      <input class="age" type="number" placeholder="Age"><input type="checkbox" title="apply to all"/>
+    </span>
+    <input placeholder="Temp member name">
+    <span class="age-wrap">
+      <input class="age" type="number" placeholder="Age"><input type="checkbox" title="apply to all"/>
+    </span>`;
+  const vegSec = document.getElementById('summary').previousElementSibling;
+  container.insertBefore(block, vegSec);
+});
+
+/* ---------------- RULES LINK (replace with real URL/PDF) --------------- */
+document.getElementById('rulesLink').href = './rules.pdf';
+
+/* ---------------- BOOT ---------------- */
+(async function boot(){
+  await loadInventory();            // fills INVENTORY and TOTAL_ROOMS from your CSV
+  computeBlockCounts();             // per-block counts for pills
+  renderCalendar20();               // calendar uses TOTAL_ROOMS
+  renderBlocks();                   // pills show per-block counts
+  openBlock = BLOCKS.find(b=>blockCounts[b]>0) || "A";
+  renderRoomsInOpenBlock();
+  updateRight();
+
+  // live mirrors
+  ['roomsRequired','occupantsTotal','veg','nonveg','memName'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.addEventListener('input', updateRight);
+  });
+})();
+</script>
+</body>
+</html>

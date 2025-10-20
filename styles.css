@@ -1,0 +1,100 @@
+/* ===== styles.css (stable; calendar + right panels + notices) ===== */
+*{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+body{margin:0;background:#fafafa;color:#222}
+
+/* Header */
+header{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;border-bottom:1px solid #eee;background:#fff;
+  position:sticky;top:0;z-index:10;
+}
+header img{height:40px}
+h1{font-size:20px;margin:0}
+h2{font-size:14px;margin:0;color:#666;font-weight:500}
+/* right-side meta in header */
+.top-meta{margin-left:auto;font-size:12px;color:#555;display:flex;gap:16px}
+.top-meta b{color:#222}
+
+/* Layout */
+main{
+  display:grid;
+  grid-template-columns: 40% 60%;
+  gap:16px; max-width:1400px; margin:16px auto; padding:0 16px;
+}
+
+/* LEFT: calendar panel */
+#calendar{
+  grid-column:1/2;
+  background:#fff;border:1px solid #eee;border-radius:12px;padding:12px;
+  max-height:84vh; overflow-y:auto;
+}
+.month{padding:8px 0 10px}
+.month-title{font-weight:600;margin:4px 0 8px}
+.mline{border-top:1px dashed #e5e5e5;margin:6px 0}
+
+/* 12 columns calendar grid */
+.month-grid-12{display:grid;grid-template-columns:repeat(12,46px);gap:6px}
+.date{
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  width:46px;height:56px;padding-top:2px;text-align:center;
+  border-radius:8px;border:1px solid #eee;cursor:pointer;background:#fff;
+}
+.date.fri-sat{background:#fffbe6;border-color:#ffe58f}
+.date.special{background:#fff0f6;border-color:#ffadd2}
+.date.closed{background:#fff1f0;border-color:#ffa39e;text-decoration:line-through;color:#999}
+.date.selected{outline:2px solid #1677ff}
+.date.in-range{background:#e6f4ff;border-color:#91caff}
+.dnum{font-size:13px;line-height:14px}
+.dow{font-size:10px;color:#888;line-height:12px;margin-top:-2px}
+.avail{font-size:10px;color:#666;line-height:12px}
+.legend{margin-top:8px}
+.badge{display:inline-block;padding:2px 6px;border-radius:999px;background:#f0f0f0;font-size:12px;margin-right:6px}
+
+/* Booking window notice above calendar */
+.notice{
+  background:#f6ffed;border:1px solid #b7eb8f;color:#135200;
+  border-radius:10px;padding:10px 12px;margin:0 0 10px 0;font-size:13px;line-height:1.4;
+}
+
+/* RIGHT: panels */
+#filters,#rooms,#summary{
+  grid-column:2/3;
+  background:#fff;border:1px solid #eee;border-radius:12px;padding:12px;
+}
+.panel-title{font-weight:600;margin:0 0 8px}
+.double-space{line-height:1.9;margin-bottom:10px}
+.strong{font-weight:600}
+.filters-row{display:flex;flex-wrap:wrap;gap:18px 24px;align-items:center;margin-bottom:12px}
+.select{height:34px;padding:4px 8px;border:1px solid #e5e5e5;border-radius:8px;background:#fff}
+.select.small{height:30px}
+
+.blocks-grid{display:flex;flex-wrap:wrap;gap:12px 18px;margin-top:12px}
+.block-pill{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:999px;border:1px solid #cfe5ff;background:#eaf4ff;font-size:13px;cursor:pointer;min-width:150px}
+.block-pill.active{background:#e6f4ff;border-color:#91caff}
+.block-rooms{margin-top:12px}
+.block-rooms-title{font-weight:600;margin-bottom:8px}
+.room-list{display:flex;flex-wrap:wrap;gap:10px 14px}
+.room-row{display:flex;align-items:center;gap:8px}
+.room-btn{padding:6px 10px;border:1px solid #eee;border-radius:999px;background:#fff;cursor:pointer}
+.room-btn.selected{background:#e6f4ff;border-color:#91caff}
+
+.counts-strip{margin-top:6px}
+
+/* Member & Temp Members */
+.member-panel{margin-top:18px;padding-top:6px;border-top:1px dashed #e5e5e5}
+.section-title-row{display:flex;align-items:center;gap:10px;margin:8px 0 10px}
+.members-grid{display:grid;grid-template-columns:minmax(220px,1fr) 90px;gap:10px 12px}
+.members-grid .age{width:90px}
+.members-controls{display:flex;align-items:center;gap:12px;margin:10px 0}
+.members-controls .addtemp{height:32px}
+.food-grid{display:grid;grid-template-columns:auto 120px;gap:8px 10px;align-items:center;margin-top:10px}
+.confirm{display:flex;align-items:center;gap:8px}
+
+/* Cancellation card */
+.cancel-card{
+  margin-top:12px;padding:10px 12px;border:1px dashed #ffccc7;background:#fff2f0;border-radius:10px;
+  font-size:13px;line-height:1.5;color:#5c0011;
+}
+.cancel-card h4{margin:0 0 6px 0;font-size:14px;color:#a8071a}
+.cancel-card ul{margin:0 0 6px 18px;padding:0}
+.cancel-card li{margin:2px 0}
